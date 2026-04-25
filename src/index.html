@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="shortcut icon" href="./assets/img/moinho-de-vento.png" type="image/x-icon">
+    <title>Dashboard - TechFt</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <nav class="navbar">
+                <div class="header-titles">
+                    <h3>Dashboard Web</h3>
+                    <p>Monitoramento microclimático</p>
+                </div>
+                <div class="header-options">
+                    <select class="seletor-estufa" id="seletor-estufa">
+                        <option value="estufa_sul">Estufa Sul</option>
+                        <option value="estufa_norte">Estufa Norte</option>
+                        <option value="estufa_leste">Estufa Leste</option>
+                    </select>
+                </div>
+                <div class="status-box">
+                    <div id="status-ball" class="ball online"></div>
+                    <p id="status-text">Online - Sincronizado</p>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main">
+            <h1 class="main-title">Dados da <span id="name-prop"></span></h1>
+
+            <div class="cards">
+                <div class="cards-items" id="card-temp">
+                    <img src="./assets/img/temperatura.png" draggable="false" alt="Temperatura">
+                    <p class="card-label">Temperatura</p>
+                    <p class="card-value" id="temperatura">--ºC</p>
+                </div>
+
+                <div class="cards-items" id="card-umid">
+                    <img src="./assets/img/umidade.png" draggable="false" alt="Umidade">
+                    <p class="card-label">Umidade</p>
+                    <p class="card-value" id="umidade">--%</p>
+                </div>
+
+                <div class="cards-items" id="card-pressao">
+                    <img src="./assets/img/pressao_atmosferica.png" draggable="false" alt="Pressão">
+                    <p class="card-label">Pressão Atmosférica</p>
+                    <p class="card-value" id="pressao">--hPa</p>
+                </div>
+            </div>
+
+            <div class="alert-box">
+                <p id="alert"></p>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Copyright © 2026, TechFt Corporation. All Rights Reserved.</p>
+        </footer>
+    </div>
+    <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>
