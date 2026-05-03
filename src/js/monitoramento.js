@@ -5,25 +5,32 @@ import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase
 const seletorEstufa = document.querySelector("#seletor-estufa");
 let conexaoAtual = null;
 
-export function iniciarMonitoramento(estufaEscolhida) {
+export function iniciarMonitoramento(lavoura) {
     if (conexaoAtual) {
-        conexaoAtual(); // Desliga a conexão anterior
+        conexaoAtual();
     }
 
-    const sensorRef = ref(database, `/Fazenda São Pedro/Estufas/${estufaEscolhida}`);
+    const sensorRef = ref(database, `/lavouras/${lavoura}/estado_atual`);
+    const mainElement = document.querySelector(".main");
 
     atualizarStatus(false, "Buscando dados...");
+
+    if (mainElement) mainElement.classList.add("loading");
 
     conexaoAtual = onValue(sensorRef, (snapshot) => {
         const dados = snapshot.val();
 
         if (dados) {
             atualizarStatus(true, "Online - Sincronizado!");
-            atualizarCards(dados, estufaEscolhida);
+            atualizarCards(dados, lavoura);
 
         } else {
-            atualizarStatus(false, "Estufa sem dados armazenados...");
-            atualizarCards({}, estufaEscolhida);
+            atualizarStatus(false, "Lavoura sem dados armazenados...");
+            atualizarCards({}, lavoura);
         }
+
+        setTimeout(() => {
+            if (mainElement) mainElement.classList.remove("loading");
+        }, 150);
     });
 }

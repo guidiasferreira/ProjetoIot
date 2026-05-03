@@ -1,11 +1,15 @@
 import { iniciarMonitoramento } from "./monitoramento.js";
+import { abrirGrafico } from "./grafico.js";
 
-const seletorEstufa = document.querySelector("#seletor-estufa");
+const seletorLavoura = document.querySelector("#seletor-estufa");
+const btnGrafico = document.querySelector("#btn-grafico");
 
-document.addEventListener("DOMContentLoaded", () =>{    
-    iniciarMonitoramento(seletorEstufa.value);
+document.addEventListener("DOMContentLoaded", () => {
+    iniciarMonitoramento(seletorLavoura.value);
 });
 
-seletorEstufa.addEventListener("change", (evento) =>{
+seletorLavoura.addEventListener("change", (evento) => {
     iniciarMonitoramento(evento.target.value);
 });
+
+btnGrafico.addEventListener("click", abrirGrafico);

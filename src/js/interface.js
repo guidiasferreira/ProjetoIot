@@ -1,17 +1,18 @@
 
-const seletorEstufa = document.querySelector("#seletor-estufa");
 const temperatura = document.querySelector("#temperatura");
-const umidade = document.querySelector("#umidade");
-const pressao_atmosferica = document.querySelector("#pressao");
-const ballStatus = document.querySelector("#status-ball");
+const altitude = document.querySelector("#altitude");
+const pressao = document.querySelector("#pressao");
+const bolaStatus = document.querySelector("#status-ball");
 const textoStatus = document.querySelector("#status-text");
-const nameProp = document.querySelector("#name-prop");
+const nomeLavoura = document.querySelector("#name-prop");
 
-export function atualizarCards(dados, estufaEscolhida) {
-    nameProp.innerHTML = dados.nome || estufaEscolhida;
-    temperatura.innerHTML = `${dados.temperatura || "--"} <span class='unidade'>°C</span>`;
-    umidade.innerHTML = `${dados.umidade || "--"} <span class='unidade'>%</span>`;
-    pressao_atmosferica.innerHTML = `${dados.pressao_atmosferica || "--"} <span class='unidade'> hPa</span>`;
+export function atualizarCards(dados, lavoura) {
+    const nome = dados.nome ? String(dados.nome) : lavoura.replace('_', ' ').toUpperCase();
+    nomeLavoura.innerHTML = nome;
+    
+    temperatura.innerHTML = `${dados.temperatura !== undefined ? Number(dados.temperatura).toFixed(2) : "--"} <span class='unidade'>°C</span>`;
+    altitude.innerHTML = `${dados.altitude !== undefined ? Number(dados.altitude).toFixed(2) : "--"} <span class='unidade'>m</span>`;
+    pressao.innerHTML = `${dados.pressao !== undefined ? Number(dados.pressao).toFixed(2) : "--"} <span class='unidade'> hPa</span>`;
 }
 
 
@@ -19,11 +20,11 @@ export function atualizarStatus(online, mensagem) {
     textoStatus.innerText = mensagem;
 
     if (online) {
-        ballStatus.classList.remove("offline");
-        ballStatus.classList.add("online");
+        bolaStatus.classList.remove("offline");
+        bolaStatus.classList.add("online");
 
     } else {
-        ballStatus.classList.remove("online");
-        ballStatus.classList.add("offline");
+        bolaStatus.classList.remove("online");
+        bolaStatus.classList.add("offline");
     }
 }

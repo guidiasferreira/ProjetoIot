@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="shortcut icon" href="./assets/img/favicon.png" type="image/x-icon">
-    <title>Dashboard</title>
+    <link rel="shortcut icon" href="./assets/img/agricultura.png" type="image/x-icon">
+    <title>AgriSmart</title>
 </head>
 
 <body>
@@ -19,9 +19,10 @@
                 </div>
                 <div class="header-options">
                     <select class="seletor-estufa" id="seletor-estufa">
-                        <option value="estufa_sul">Estufa Sul</option>
-                        <option value="estufa_norte">Estufa Norte</option>
-                        <option value="estufa_leste">Estufa Leste</option>
+                        <option value="lavoura_north">Lavoura Norte</option>
+                        <option value="lavoura_south">Lavoura Sul</option>
+                        <option value="lavoura_east">Lavoura Leste</option>
+                        <option value="lavoura_west">Lavoura Oeste</option>
                     </select>
                 </div>
                 <div class="status-box">
@@ -36,34 +37,41 @@
 
             <div class="cards">
                 <div class="cards-items" id="card-temp">
-                    <img src="./assets/img/temperatura.png" draggable="false" alt="Temperatura">
+                    <img src="./assets/img/temperaturas.png" draggable="false" alt="Temperatura">
                     <p class="card-label">Temperatura</p>
                     <p class="card-value" id="temperatura">--ºC</p>
                 </div>
 
-                <div class="cards-items" id="card-umid">
-                    <img src="./assets/img/umidade.png" draggable="false" alt="Umidade">
-                    <p class="card-label">Umidade</p>
-                    <p class="card-value" id="umidade">--%</p>
+                <div class="cards-items" id="card-alt">
+                    <img src="./assets/img/altitude.png" draggable="false" alt="Altitude">
+                    <p class="card-label">Altitude</p>
+                    <p class="card-value" id="altitude">--m</p>
                 </div>
 
                 <div class="cards-items" id="card-pressao">
-                    <img src="./assets/img/pressao_atmosferica.png" draggable="false" alt="Pressão">
+                    <img src="./assets/img/pressao.png" draggable="false" alt="Pressão Atmosférica">
                     <p class="card-label">Pressão Atmosférica</p>
                     <p class="card-value" id="pressao">--hPa</p>
                 </div>
             </div>
 
-            <div class="alert-box">
-                <p id="alert"></p>
+            <div class="box-historico">
+                <button class="btn-grafico" id="btn-grafico">Gerar Gráfico</button>
+            </div>
+            <div id="grafico-wrapper" class="grafico-wrapper">
+                <button class="btn-grafico" id="btn-voltar">⬅ Voltar aos Dados atuais</button>
+                <div class="grafico-canvas-container">
+                    <canvas id="chart"></canvas>
+                </div>
             </div>
         </main>
 
         <footer class="footer">
-            <p>Copyright © 2026, TechFt Corporation. All Rights Reserved.</p>
+            <p>Copyright © 2026, AgriSmart Corporation. All Rights Reserved.</p>
         </footer>
     </div>
     <script type="module" src="./js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 
 </html>
