@@ -59,7 +59,6 @@
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
-    cursor: pointer;
     transition: all 0.3s ease;
 }
 
@@ -209,4 +208,68 @@
     padding: 35px 5%;
     background-color: var(--header_footer-color);
     color: white;
+}
+
+/* --- Responsividade (Media Queries) --- */
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .header-options {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .main-title {
+        font-size: 1.6rem;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .main {
+        padding: 30px 15px;
+    }
+
+    .cards {
+        gap: 15px;
+    }
+
+    .cards-items {
+        width: 100%;
+        max-width: 340px;
+        height: auto;
+        padding: 25px 15px;
+    }
+
+    .status-box {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .grafico-canvas-container {
+        height: 300px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-titles h3 {
+        font-size: 1.2rem;
+    }
+
+    .card-value {
+        font-size: 1.5rem;
+    }
+
+    .seletor-estufa {
+        width: 100%;
+    }
+
+    .cards-items {
+        max-width: 100%;
+    }
 }
