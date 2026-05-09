@@ -180,25 +180,104 @@
 .grafico-wrapper {
     display: none;
     width: 100%;
-    max-width: 700px;
+    max-width: 1100px;
     margin: 0 auto;
     flex-direction: column;
+    gap: 20px;
+}
+
+.grafico-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 #btn-voltar {
     align-self: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
+}
+
+.grafico-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--header_footer-color);
+}
+
+.grafico-subtitle {
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 400;
+}
+
+.grafico-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+
+.grafico-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grafico-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.grafico-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    color: white;
+}
+
+.grafico-card-icon {
+    font-size: 1.3rem;
+}
+
+.grafico-card-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.grafico-card-unit {
+    font-size: 0.8rem;
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
 }
 
 .grafico-canvas-container {
     position: relative;
     width: 100%;
-    height: 350px;
-    padding: 10px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    border: 1.5px solid var(--border-gray);
+    height: 220px;
+    padding: 12px 14px 10px;
+}
+
+#card-chart-temp .grafico-card-header {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+#card-chart-umidade .grafico-card-header {
+    background: linear-gradient(135deg, #3498db, #1a6fa8);
+}
+
+#card-chart-altitude .grafico-card-header {
+    background: linear-gradient(135deg, #2ecc71, #1a9a52);
+}
+
+#card-chart-pressao .grafico-card-header {
+    background: linear-gradient(135deg, #7e6240ff, #5e4320);
 }
 
 .footer {
@@ -210,9 +289,11 @@
     color: white;
 }
 
-/* --- Responsividade (Media Queries) --- */
-
 @media (max-width: 768px) {
+    #footer-text {
+        text-align: center;
+    }
+
     .navbar {
         flex-direction: column;
         gap: 15px;
@@ -251,8 +332,16 @@
     }
 
     .grafico-canvas-container {
-        height: 300px;
+        height: 200px;
         padding: 10px;
+    }
+
+    .grafico-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .grafico-title {
+        font-size: 1.2rem;
     }
 }
 

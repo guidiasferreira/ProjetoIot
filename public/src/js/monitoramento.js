@@ -2,7 +2,6 @@ import { database } from "./firebase_config.js";
 import { atualizarCards, atualizarStatus } from "./interface.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-const seletorEstufa = document.querySelector("#seletor-estufa");
 let conexaoAtual = null;
 
 export function iniciarMonitoramento(lavoura) {

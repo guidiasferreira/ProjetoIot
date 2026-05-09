@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./src/css/main.css">
+    <link rel="shortcut icon" href="./src/assets/img/planta.png" type="image/x-icon">
+    <title>AgriSmart</title>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <nav class="navbar">
+                <div class="header-titles">
+                    <h3>Dashboard Web</h3>
+                    <p>Monitoramento microclimático</p>
+                </div>
+                <div class="header-options">
+                    <select class="seletor-estufa" id="seletor-estufa">
+                        <option value="lavoura_north">Lavoura Norte</option>
+                        <option value="lavoura_south">Lavoura Sul</option>
+                        <option value="lavoura_east">Lavoura Leste</option>
+                        <option value="lavoura_west">Lavoura Oeste</option>
+                    </select>
+                </div>
+                <div class="status-box">
+                    <div id="status-ball" class="ball online"></div>
+                    <p id="status-text">Online - Sincronizado</p>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main">
+            <h1 class="main-title">Dados da <span id="name-prop"></span></h1>
+
+            <div class="cards">
+                <div class="cards-items" id="card-temp">
+                    <img src="./src/assets/img/temperature-svgrepo-com.svg" draggable="false" alt="Temperatura">
+                    <p class="card-label">Temperatura</p>
+                    <p class="card-value" id="temperatura">--ºC</p>
+                </div>
+
+                <div class="cards-items" id="card-alt">
+                    <img src="./src/assets/img/humidity-svgrepo-com.svg" draggable="false" alt="Umidade">
+                    <p class="card-label">Umidade</p>
+                    <p class="card-value" id="umidade">--%</p>
+                </div>
+
+                <div class="cards-items" id="card-alt">
+                    <img src="./src/assets/img/mountains-altitude-svgrepo-com.svg" draggable="false" alt="Altitude">
+                    <p class="card-label">Altitude</p>
+                    <p class="card-value" id="altitude">--m</p>
+                </div>
+
+                <div class="cards-items" id="card-pressao">
+                    <img src="./src/assets/img/clouds-strom-2-svgrepo-com.svg" draggable="false"
+                        alt="Pressão Atmosférica">
+                    <p class="card-label">Pressão Atmosférica</p>
+                    <p class="card-value" id="pressao">--hPa</p>
+                </div>
+            </div>
+
+            <div class="box-historico">
+                <button class="btn-grafico" id="btn-grafico">Gerar Gráfico</button>
+            </div>
+            <div id="grafico-wrapper" class="grafico-wrapper">
+                <div class="grafico-header">
+                    <button class="btn-grafico" id="btn-voltar">⬅ Voltar</button>
+                    <h2 class="grafico-title">Histórico de Variações</h2>
+                    <p class="grafico-subtitle">Últimas 15 leituras</p>
+                </div>
+                <div class="grafico-grid">
+                    <div class="grafico-card" id="card-chart-temp">
+                        <div class="grafico-card-header">
+                            <span class="grafico-card-icon"></span>
+                            <span class="grafico-card-label">Temperatura</span>
+                            <span class="grafico-card-unit">°C</span>
+                        </div>
+                        <div class="grafico-canvas-container">
+                            <canvas id="chart-temp"></canvas>
+                        </div>
+                    </div>
+                    <div class="grafico-card" id="card-chart-umidade">
+                        <div class="grafico-card-header">
+                            <span class="grafico-card-icon"></span>
+                            <span class="grafico-card-label">Umidade</span>
+                            <span class="grafico-card-unit">%</span>
+                        </div>
+                        <div class="grafico-canvas-container">
+                            <canvas id="chart-umidade"></canvas>
+                        </div>
+                    </div>
+                    <div class="grafico-card" id="card-chart-altitude">
+                        <div class="grafico-card-header">
+                            <span class="grafico-card-icon"></span>
+                            <span class="grafico-card-label">Altitude</span>
+                            <span class="grafico-card-unit">m</span>
+                        </div>
+                        <div class="grafico-canvas-container">
+                            <canvas id="chart-altitude"></canvas>
+                        </div>
+                    </div>
+                    <div class="grafico-card" id="card-chart-pressao">
+                        <div class="grafico-card-header">
+                            <span class="grafico-card-icon"></span>
+                            <span class="grafico-card-label">Pressão Atmosférica</span>
+                            <span class="grafico-card-unit">hPa</span>
+                        </div>
+                        <div class="grafico-canvas-container">
+                            <canvas id="chart-pressao"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p id="footer-text">Copyright © 2026, AgriSmart Corporation. All Rights Reserved.</p>
+        </footer>
+    </div>
+    <script type="module" src="./src/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+
+</html>
