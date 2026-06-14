@@ -1,0 +1,384 @@
+# 📖 Documentação Técnica — AgriSmart IoT
+
+> Dashboard web para monitoramento microclimático de lavouras em tempo real.
+
+---
+
+## 1. Visão Geral
+
+O **AgriSmart** é uma aplicação web do tipo SPA (*Single Page Application*) integrada ao ecossistema **Firebase** para monitoramento de variáveis ambientais coletadas por dispositivos IoT instalados em diferentes zonas de lavoura. O sistema exibe dados em tempo real e permite visualizar o histórico das últimas 15 leituras por meio de gráficos interativos.
+
+---
+
+## 2. Diagrama de Arquitetura
+
+![Diagrama de Arquitetura AgriSmart](C:\Users\Guilherme\.gemini\antigravity-ide\brain\05cd1a71-2e81-4428-a2fb-9b4f872036d0\agrismart_architecture_1781442204966.png)
+
+```mermaid
+flowchart LR
+    subgraph HW["🔧 Camada de Hardware"]
+        ESP["ESP32 + Sensores"]
+        S1["🌡️ Temperatura"]
+        S2["💧 Umidade"]
+        S3["⛰️ Altitude"]
+        S4["🌪️ Pressão Atm."]
+        ESP --> S1 & S2 & S3 & S4
+    end
+
+    subgraph FB["☁️ Firebase Cloud"]
+        RTDB["Realtime Database\n/lavouras/{id}/estado_atual\n/lavouras/{id}/historico"]
+        HOST["Firebase Hosting\nSPA (index.html)"]
+    end
+
+    subgraph WEB["🖥️ Dashboard Web"]
+        MAIN["main.js\nPonto de entrada"]
+        MON["monitoramento.js\nonValue() listener"]
+        GRAF["grafico.js\nChart.js"]
+        INT["interface.js\nAtualização DOM"]
+        MAIN --> MON & GRAF
+        MON --> INT
+    end
+
+    ESP -- "Escreve dados (RTDB)" --> RTDB
+    RTDB -- "onValue() — WebSocket" --> MON
+    GRAF -- "get() — leitura única" --> RTDB
+    HOST -- "Serve" --> WEB
+```
+
+---
+
+## 3. Estrutura de Arquivos
+
+```
+ProjetoIot/
+├── public/                         # Diretório raiz do Firebase Hosting
+│   ├── index.html                  # HTML principal da SPA
+│   └── src/
+│       ├── css/
+│       │   └── main.css            # Estilos globais
+│       ├── js/
+│       │   ├── main.js             # Entry point — bootstrap da aplicação
+│       │   ├── firebase_config.js  # Configuração e exportação do Firebase
+│       │   ├── monitoramento.js    # Lógica de escuta em tempo real
+│       │   ├── grafico.js          # Geração e gestão de gráficos históricos
+│       │   └── interface.js        # Funções de atualização do DOM
+│       └── assets/
+│           ├── img/                # Ícones SVG e imagens PNG
+│           └── doc/                # Documentos de referência
+├── firebase.json                   # Regras e configuração do Hosting
+├── .firebaserc                     # Projeto Firebase ativo
+└── README.md
+```
+
+---
+
+## 4. Módulos JavaScript
+
+### 4.1 `main.js` — Ponto de Entrada
+
+**Responsabilidade:** Inicializar a aplicação e vincular eventos de alto nível ao DOM.
+
+```js
+// Inicializa o monitoramento ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+    iniciarMonitoramento(seletorLavoura.value);
+});
+
+// Reinicia o monitoramento ao trocar de lavoura
+seletorLavoura.addEventListener("change", (evento) => {
+    iniciarMonitoramento(evento.target.value);
+});
+
+// Abre o painel de gráficos históricos
+btnGrafico.addEventListener("click", abrirGrafico);
+```
+
+| Evento | Ação |
+|---|---|
+| `DOMContentLoaded` | Inicia monitoramento com a lavoura padrão |
+| `change` no seletor | Reinicia monitoramento na nova lavoura |
+| `click` no botão de gráfico | Abre a visualização histórica |
+
+---
+
+### 4.2 `firebase_config.js` — Configuração Firebase
+
+**Responsabilidade:** Inicializar o SDK do Firebase e exportar a instância do banco de dados.
+
+- Utiliza **Firebase v10.9.0** via CDN (ESModules)
+- Configuração armazenada como Base64 embutida para evitar exposição direta no código-fonte
+- Exporta a instância `database` para uso nos demais módulos
+
+> **⚠️ Atenção:** Em produção, considere utilizar variáveis de ambiente ou regras de segurança no Firebase para proteger as credenciais.
+
+---
+
+### 4.3 `monitoramento.js` — Monitoramento em Tempo Real
+
+**Responsabilidade:** Criar e gerenciar listeners de dados em tempo real via Firebase `onValue()`.
+
+```
+iniciarMonitoramento(lavoura: string) → void
+```
+
+**Fluxo de execução:**
+
+```
+1. Cancela conexão anterior (se existir) → conexaoAtual()
+2. Cria referência: /lavouras/{lavoura}/estado_atual
+3. Define status como "Buscando dados..."
+4. Adiciona classe .loading no elemento main
+5. Registra onValue() → Firebase notifica a cada mudança
+   ├── dados existentes → atualizarStatus(true) + atualizarCards(dados)
+   └── dados ausentes  → atualizarStatus(false) + atualizarCards({})
+6. Remove .loading após 150ms (transição suave)
+```
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `lavoura` | `string` | Chave da lavoura no Firebase (ex: `lavoura_north`) |
+
+---
+
+### 4.4 `grafico.js` — Gráficos Históricos
+
+**Responsabilidade:** Buscar dados históricos do Firebase e renderizar gráficos com Chart.js.
+
+#### `abrirGrafico()` (exportada, assíncrona)
+
+```
+1. Oculta cards e título; exibe grafico-wrapper
+2. Busca /lavouras/{id}/historico via get() (leitura única)
+3. Extrai as últimas 15 leituras de cada campo
+4. Renderiza 4 gráficos de linha via criarGrafico()
+5. Em caso de erro → alerta e retorna à tela principal
+```
+
+#### `criarGrafico(canvasId, instanciaAntiga, labels, dados, label, cor, unidade)`
+
+Cria ou recria um gráfico Chart.js do tipo `line` com:
+
+| Configuração | Valor |
+|---|---|
+| Tipo | `line` com `fill: true` |
+| Tensão | `0.4` (curvas suaves) |
+| Animação | 600ms, `easeInOutQuart` |
+| Ponto hover | Raio 7px |
+| Tooltip | Exibe valor formatado com 2 casas decimais + unidade |
+
+**Mapeamento de cores por variável:**
+
+| Variável | Cor | Gradiente do cabeçalho |
+|---|---|---|
+| Temperatura | `#e74c3c` (vermelho) | `#e74c3c → #c0392b` |
+| Umidade | `#3498db` (azul) | `#3498db → #1a6fa8` |
+| Altitude | `#2ecc71` (verde) | `#2ecc71 → #1a9a52` |
+| Pressão | `#705735` (marrom) | `#7e6240 → #5e4320` |
+
+---
+
+### 4.5 `interface.js` — Atualização do DOM
+
+**Responsabilidade:** Funções puras para atualização dos elementos visuais da interface.
+
+#### `atualizarCards(dados, lavoura)`
+
+Atualiza os 4 cards de métricas e o título da lavoura.
+
+```js
+// Fallback caso nome não esteja definido no Firebase
+const nome = dados.nome ?? lavoura.replace('_', ' ').toUpperCase();
+```
+
+| Campo | Formatação | Fallback |
+|---|---|---|
+| `temperatura` | `toFixed(2) °C` | `--` |
+| `umidade` | `toFixed(2) %` | `--` |
+| `altitude` | `toFixed(2) m` | `--` |
+| `pressao` | `toFixed(2) hPa` | `--` |
+
+#### `atualizarStatus(online, mensagem)`
+
+Alterna a classe CSS `.online` / `.offline` no indicador de status e atualiza o texto.
+
+---
+
+## 5. Interface de Usuário
+
+### 5.1 Componentes Principais
+
+| Componente | Seletor CSS | Descrição |
+|---|---|---|
+| Header / Navbar | `.header`, `.navbar` | Logo, seletor de lavoura e status |
+| Seletor de Lavoura | `#seletor-estufa` | Dropdown com 4 lavouras |
+| Status Badge | `#status-ball`, `#status-text` | Indicador online/offline |
+| Cards de Dados | `.cards`, `.cards-items` | 4 cards com métricas atuais |
+| Botão Gráfico | `#btn-grafico` | Abre o painel histórico |
+| Wrapper do Gráfico | `#grafico-wrapper` | Contêiner dos 4 gráficos |
+| Gráfico - Temperatura | `#chart-temp` | Canvas Chart.js |
+| Gráfico - Umidade | `#chart-umidade` | Canvas Chart.js |
+| Gráfico - Altitude | `#chart-altitude` | Canvas Chart.js |
+| Gráfico - Pressão | `#chart-pressao` | Canvas Chart.js |
+
+### 5.2 Estados de Loading
+
+A classe `.loading` é aplicada ao elemento `<main>` durante a troca de lavoura, reduzindo a opacidade para 50% com transição suave de 0.4s, indicando ao usuário que os dados estão sendo carregados.
+
+### 5.3 Responsividade
+
+| Breakpoint | Mudanças |
+|---|---|
+| `≤ 768px` | Navbar em coluna, cards em coluna única, grid de gráficos em 1 coluna |
+| `≤ 480px` | Seletor 100% largura, fonte dos valores reduzida |
+
+---
+
+## 6. Firebase Realtime Database
+
+### 6.1 Estrutura de Dados
+
+```json
+{
+  "lavouras": {
+    "lavoura_north": {
+      "estado_atual": {
+        "nome": "Lavoura Norte",
+        "temperatura": 24.53,
+        "umidade": 68.20,
+        "altitude": 842.10,
+        "pressao": 1013.25
+      },
+      "historico": {
+        "temperatura": {
+          "2024-01-01T10:00:00": 24.1,
+          "2024-01-01T10:05:00": 24.8
+        },
+        "umidade": { ... },
+        "altitude": { ... },
+        "pressao": { ... }
+      }
+    },
+    "lavoura_south": { ... },
+    "lavoura_east":  { ... },
+    "lavoura_west":  { ... }
+  }
+}
+```
+
+### 6.2 Caminhos Relevantes
+
+| Caminho | Método | Descrição |
+|---|---|---|
+| `/lavouras/{id}/estado_atual` | `onValue()` | Dados atuais em tempo real |
+| `/lavouras/{id}/historico` | `get()` | Histórico completo (leitura única) |
+
+### 6.3 Chaves das Lavouras
+
+| `value` do Seletor | Nome Exibido |
+|---|---|
+| `lavoura_north` | Lavoura Norte |
+| `lavoura_south` | Lavoura Sul |
+| `lavoura_east` | Lavoura Leste |
+| `lavoura_west` | Lavoura Oeste |
+
+---
+
+## 7. Configuração do Firebase Hosting
+
+**`firebase.json`:**
+
+```json
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
+```
+
+A regra de `rewrites` garante que todas as rotas sejam redirecionadas para `index.html`, comportamento padrão de SPAs.
+
+---
+
+## 8. Configuração do Dispositivo IoT
+
+Para que o dashboard receba dados, o dispositivo IoT deve escrever no Firebase RTDB seguindo a estrutura definida. Exemplo de payload esperado para `estado_atual`:
+
+```json
+{
+  "nome": "Lavoura Norte",
+  "temperatura": 24.53,
+  "umidade": 68.20,
+  "altitude": 842.10,
+  "pressao": 1013.25
+}
+```
+
+Para o histórico, cada leitura deve ser registrada como uma chave única (preferencialmente timestamp ISO 8601) sob cada subcampo:
+
+```json
+{
+  "historico": {
+    "temperatura": {
+      "2026-06-14T10:00:00": 24.53
+    }
+  }
+}
+```
+
+> **Dica:** Utilize `push()` do Firebase SDK (Arduino/ESP-IDF) para gerar chaves únicas automaticamente.
+
+---
+
+## 9. Dependências Externas
+
+| Dependência | Versão | Fonte | Uso |
+|---|---|---|---|
+| Firebase App | `10.9.0` | CDN gstatic | Inicialização do Firebase |
+| Firebase Realtime DB | `10.9.0` | CDN gstatic | Leitura/escrita de dados |
+| Chart.js | Latest | jsDelivr CDN | Renderização de gráficos |
+| Google Fonts (Poppins) | — | fonts.googleapis.com | Tipografia |
+
+---
+
+## 10. Design System
+
+### Paleta de Cores
+
+| Variável CSS | Valor | Uso |
+|---|---|---|
+| `--background-color` | `#f4f7f9` | Fundo da página |
+| `--header_footer-color` | `#2c3e50` | Header, footer e botões |
+| `--success` | `#2ecc71` | Status online |
+| `--danger` | `#e74c3c` | Status offline / temperatura |
+
+### Tipografia
+
+- Família: **Poppins** (Google Fonts)
+- Pesos: 300, 400, 600, 800
+
+---
+
+## 11. Considerações de Segurança
+
+> [!WARNING]
+> A configuração do Firebase está embutida em Base64 no arquivo `firebase_config.js`. Isso **não é criptografia** — qualquer pessoa pode decodificar o Base64. Configure as **Regras de Segurança do Firebase RTDB** para limitar leitura/escrita apenas a origens autorizadas.
+
+**Regras recomendadas (Firebase RTDB Rules):**
+```json
+{
+  "rules": {
+    "lavouras": {
+      ".read": true,
+      ".write": false
+    }
+  }
+}
+```
+
+---
+
+*Documentação gerada em: Junho de 2026 | AgriSmart © 2026*

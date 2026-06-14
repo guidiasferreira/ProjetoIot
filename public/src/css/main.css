@@ -17,6 +17,11 @@
     --border-gray: #333;
 }
 
+::selection {
+    background-color: var(--header_footer-color);
+    color: white;
+}
+
 .container {
     display: flex;
     flex-direction: column;
